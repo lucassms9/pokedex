@@ -7,3 +7,7 @@ export const IconBall = styled.Image`
   position: absolute;
   top: -150px;
 `;
+
+export const Container = styled.View`
+  height: 100px;
+`;

@@ -1,32 +1,42 @@
-import React from "react";
-import { Text } from "react-native";
-// import { SlideProps } from "../tabs";
+import React from 'react';
+import Text from '../../../components/Text';
+import { POKEMON_TYPE_COLORS } from '../../../constants';
+import { PokemonEntity } from '../../../services/pokemons/types';
 
-import Effectiveness from "./Effectiveness";
-import { Stat, StatGraph, StatLine, StatValue } from "./styles";
+import { Stat, StatGraph, StatLine, StatValue, Title } from './styles';
 
-const BaseStats = ({ pokemon }) => {
+interface Props {
+  pokemon: PokemonEntity;
+}
+const BaseStats = ({ pokemon }: Props) => {
   return (
     <>
+      <Title
+        bold
+        color={POKEMON_TYPE_COLORS[pokemon.types[0].type.name.toLowerCase()]}
+      >
+        Estatísticas
+      </Title>
       {pokemon.stats.map((stat) => (
-        <Stat key={stat.url}>
-          <Text color="grey" style={{ width: 100 }}>
-            {stat.name}
+        <Stat key={stat.stat.url}>
+          <Text bold style={{ width: 100 }}>
+            {stat.stat.name}
           </Text>
 
           <StatGraph>
-            <Text style={{ width: 30, textAlign: "right", fontWeight: "bold" }}>
-              {stat.base_stat}
-            </Text>
+            <Text variant="body3">{stat.base_stat}</Text>
 
             <StatLine>
-              <StatValue width={stat.base_stat} />
+              <StatValue
+                width={stat.base_stat}
+                backgroundColor={
+                  POKEMON_TYPE_COLORS[pokemon.types[0].type.name.toLowerCase()]
+                }
+              />
             </StatLine>
           </StatGraph>
         </Stat>
       ))}
-
-      <Effectiveness pokemon={pokemon} />
     </>
   );
 };

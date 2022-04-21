@@ -1,14 +1,14 @@
-import React, { useMemo } from "react";
-import { View } from "react-native";
-import { Foundation as Icon } from "@expo/vector-icons";
+import React, { useMemo } from 'react';
+import { View } from 'react-native';
+import { Foundation as Icon } from '@expo/vector-icons';
 
-// import { SlideProps } from "../tabs";
-import { Text } from "react-native";
+import Text from '../../../components/Text';
+
 import {
   convertValues,
   getPokemonGenderStats,
-  replaceString,
-} from "../../../utils";
+  replaceString
+} from '../../../utils';
 
 import {
   Section,
@@ -16,10 +16,17 @@ import {
   SectionContent,
   SectionSubtitle,
   SectionText,
-  ShadowContainer,
-} from "./styles";
+  SectionItem,
+  Container
+} from './styles';
+import { POKEMON_TYPE_COLORS } from '../../../constants';
+import { PokemonEntity } from '../../../services/pokemons/types';
 
-const About = ({ pokemon }) => {
+interface Props {
+  pokemon: PokemonEntity;
+}
+
+const About = ({ pokemon }: Props) => {
   const pokemonFormatted = useMemo(() => {
     return {
       ...pokemon,
@@ -28,64 +35,95 @@ const About = ({ pokemon }) => {
       heightInFeet: convertValues.decimeterToFeet(pokemon.height),
       weightInKilograms: convertValues.hectogramsToKilograms(pokemon.weight),
       weightInPounds: convertValues.hectogramsToPounds(pokemon.weight),
+      abilitesFormatted: pokemon.abilites.map((item) => item.ability.name)
     };
   }, [pokemon]);
 
   const pokemonGendersRate = getPokemonGenderStats(pokemon.gender_rate);
 
+  console.log('pokemonFormatted', pokemonFormatted.abilites);
   return (
-    <>
+    <Container>
       <Section>
         <Text>{pokemonFormatted.descriptionWithNoBreakLine}</Text>
       </Section>
 
       <Section>
-        <ShadowContainer>
-          <View>
-            <Text color="grey" bold style={{ marginBottom: 8 }}>
-              Height
-            </Text>
+        <SectionTitle
+          color={POKEMON_TYPE_COLORS[pokemon.types[0].type.name.toLowerCase()]}
+        >
+          Pokédex Dados
+        </SectionTitle>
 
-            <SectionText>
-              {pokemonFormatted.heightInMeters} m (
-              {pokemonFormatted.heightInFeet}
-              ft)
-            </SectionText>
-          </View>
-
-          <View>
-            <Text color="grey" bold style={{ marginBottom: 8 }}>
-              Height
-            </Text>
-
-            <SectionText>
-              {pokemonFormatted.weightInKilograms} kg (
-              {pokemonFormatted.weightInPounds} lbs)
-            </SectionText>
-          </View>
-        </ShadowContainer>
+        <SectionItem>
+          <SectionSubtitle>
+            <Text bold>Altura</Text>
+          </SectionSubtitle>
+          <Text textAlign="left">
+            {pokemonFormatted.heightInMeters} m ({pokemonFormatted.heightInFeet}
+            ft)
+          </Text>
+        </SectionItem>
+        <SectionItem>
+          <SectionSubtitle>
+            <Text bold>Peso</Text>
+          </SectionSubtitle>
+          <Text>
+            {pokemonFormatted.weightInKilograms} kg (
+            {pokemonFormatted.weightInPounds}
+            lbs)
+          </Text>
+        </SectionItem>
+        <SectionItem>
+          <SectionSubtitle>
+            <Text bold>Abilidades</Text>
+          </SectionSubtitle>
+          <Text>{pokemonFormatted.abilitesFormatted.join(',')}</Text>
+        </SectionItem>
       </Section>
 
       <Section>
-        <SectionTitle>Breeding</SectionTitle>
+        <SectionTitle
+          color={POKEMON_TYPE_COLORS[pokemon.types[0].type.name.toLowerCase()]}
+        >
+          Training
+        </SectionTitle>
 
         <SectionContent>
-          <SectionSubtitle>Gender</SectionSubtitle>
+          <SectionSubtitle>
+            <Text bold>Base EXP</Text>
+          </SectionSubtitle>
+
+          <SectionText>{pokemon.base_experience}</SectionText>
+        </SectionContent>
+      </Section>
+
+      <Section>
+        <SectionTitle
+          color={POKEMON_TYPE_COLORS[pokemon.types[0].type.name.toLowerCase()]}
+        >
+          Reprodução
+        </SectionTitle>
+
+        <SectionContent>
+          <SectionSubtitle>
+            <Text bold>Gênero</Text>
+          </SectionSubtitle>
 
           {pokemonGendersRate.map((gender) => (
             <SectionText key={gender.gender} style={{ marginRight: 16 }}>
-              {gender.gender === "genderless" ? (
-                <Text style={{ fontWeight: "bold" }}>Genderless</Text>
+              {gender.gender === 'genderless' ? (
+                <Text style={{ fontWeight: 'bold' }}>sem sexo</Text>
               ) : (
                 <>
                   <Icon
                     name={
-                      gender.gender === "male" ? "male-symbol" : "female-symbol"
+                      gender.gender === 'male' ? 'male-symbol' : 'female-symbol'
                     }
-                    color={gender.gender === "male" ? "#6890F0" : "#EE99AC"}
+                    color={gender.gender === 'male' ? '#6890F0' : '#EE99AC'}
                     size={16}
                   />
-                  {"  "}
+                  {'  '}
                   {gender.rate}%
                 </>
               )}
@@ -94,7 +132,9 @@ const About = ({ pokemon }) => {
         </SectionContent>
 
         <SectionContent>
-          <SectionSubtitle>Egg Groups</SectionSubtitle>
+          <SectionSubtitle>
+            <Text bold>Egg Groups</Text>
+          </SectionSubtitle>
 
           {pokemon.egg_groups.map((egg_group) => (
             <SectionText key={egg_group.url} style={{ marginRight: 8 }}>
@@ -103,17 +143,7 @@ const About = ({ pokemon }) => {
           ))}
         </SectionContent>
       </Section>
-
-      <Section>
-        <SectionTitle>Training</SectionTitle>
-
-        <SectionContent>
-          <SectionSubtitle>Base EXP</SectionSubtitle>
-
-          <SectionText>{pokemon.base_experience}</SectionText>
-        </SectionContent>
-      </Section>
-    </>
+    </Container>
   );
 };
 

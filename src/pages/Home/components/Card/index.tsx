@@ -1,6 +1,5 @@
 import React from 'react';
 
-import { View } from 'react-native';
 import pokeball from '../../../../../assets/pokeball-gray.jpg';
 import { useNavigation } from '@react-navigation/native';
 import {
@@ -20,26 +19,36 @@ interface Props {
 }
 const Card = ({ pokemon }: Props) => {
   const navigation = useNavigation();
-  // console.log('pokemon', pokemon.types[0].type.name.toLowerCase());
+
   return (
     <Container
       key={pokemon.id}
       backgroundColor={
         POKEMON_TYPE_COLORS[pokemon.types[0].type.name.toLowerCase()]
       }
-      onPress={() => navigation.navigate('Detail')}
+      onPress={() =>
+        navigation.navigate('Detail', {
+          pokemon
+        })
+      }
     >
       <ContentInfo>
         <Text variant="caption"> #{pokemon.id}</Text>
         <Text variant="body1" bold color="white">
           {pokemon.name}
         </Text>
-        <ContentType style={{ marginTop: 5 }}>
-          <Type style={{}}>
-            <Text textAlign="center" color="white" variant="caption">
-              Bug
-            </Text>
-          </Type>
+        <ContentType horizontal>
+          {pokemon.types.map((type) => (
+            <Type
+              backgroundColor={
+                POKEMON_TYPE_COLORS[type.type.name.toLowerCase()]
+              }
+            >
+              <Text color="white" variant="caption">
+                {type.type.name}
+              </Text>
+            </Type>
+          ))}
         </ContentType>
       </ContentInfo>
 

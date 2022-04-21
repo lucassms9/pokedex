@@ -1,7 +1,5 @@
 import styled from 'styled-components/native';
-import { PokemonEntity } from '../../services/pokemons/types';
 
-import { FlatList } from 'react-native';
 export const Container = styled.SafeAreaView`
   flex: 1;
   flex-direction: column;

@@ -1,16 +1,10 @@
-import React from "react";
-import { Feather as Icon } from "@expo/vector-icons";
-import { useTheme } from "styled-components";
+import React from 'react';
+import { Feather as Icon } from '@expo/vector-icons';
+import { useTheme } from 'styled-components';
 
-import { Text } from "react-native";
+import Text from '../../../../components/Text';
 
-import {
-  Container,
-  Pokemon,
-  PokeballBackground,
-  PokemonImage,
-  MinLevel,
-} from "./styles";
+import { Container, Pokemon, PokemonImage, MinLevel } from './styles';
 
 type EvolutionSectionProps = {
   firstImage: string;
@@ -25,15 +19,13 @@ const EvolutionSection = ({
   firstName,
   secondImage,
   secondName,
-  minLevel,
+  minLevel
 }: EvolutionSectionProps) => {
   const { colors } = useTheme();
 
   return (
     <Container>
       <Pokemon>
-        <PokeballBackground />
-
         <PokemonImage source={{ uri: firstImage }} />
         <Text>{firstName}</Text>
       </Pokemon>
@@ -46,8 +38,6 @@ const EvolutionSection = ({
       </MinLevel>
 
       <Pokemon>
-        <PokeballBackground />
-
         <PokemonImage source={{ uri: secondImage }} />
         <Text>{secondName}</Text>
       </Pokemon>

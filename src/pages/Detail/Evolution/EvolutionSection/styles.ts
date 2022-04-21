@@ -1,7 +1,5 @@
-import styled from "styled-components/native";
-import { StyleSheet } from "react-native";
-
-import Pokeball from "../../../../components/Pokeball";
+import styled from 'styled-components/native';
+import { StyleSheet } from 'react-native';
 
 export const Container = styled.View`
   border-bottom-width: ${StyleSheet.hairlineWidth}px;
@@ -19,17 +17,6 @@ export const Pokemon = styled.View`
   position: relative;
 
   align-items: center;
-`;
-
-export const PokeballBackground = styled(Pokeball).attrs({
-  width: 120,
-  height: 120,
-  color: "#F4F5F4",
-})`
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
 `;
 
 export const PokemonImage = styled.Image`

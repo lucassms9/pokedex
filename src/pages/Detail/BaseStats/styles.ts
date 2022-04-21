@@ -1,8 +1,10 @@
 import styled from 'styled-components/native';
-import { Animated } from 'react-native';
+
+import Text from '../../../components/Text';
 
 type StatValueProps = {
   width: number;
+  backgroundColor: string;
 };
 
 export const Stat = styled.View`
@@ -27,9 +29,13 @@ export const StatLine = styled.View`
   margin-left: 16px;
 `;
 
-export const StatValue = styled(Animated.View)<StatValueProps>`
+export const StatValue = styled.View<StatValueProps>`
   height: 3px;
-  background: ${({ theme, width }) =>
-    width < 50 ? theme.colors.red : theme.colors.green};
-  width: ${props => props.width}%;
+  background: ${({ backgroundColor }) => backgroundColor};
+  width: ${(props) => props.width}%;
+`;
+
+export const Title = styled(Text)<{ color: string }>`
+  color: ${({ color }) => color};
+  margin-bottom: 20px;
 `;

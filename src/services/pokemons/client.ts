@@ -2,6 +2,7 @@ import api from '../api';
 import axios from 'axios';
 import {
   Ability,
+  EvolutionChain,
   Pokemon,
   PokemonApiResult,
   PokemonEntity,
@@ -10,6 +11,18 @@ import {
   Type
 } from './types';
 import { capitalizeFirstLetter } from '../../utils';
+
+interface ItemEvolution {
+  name: string;
+  url: string;
+  min_level?: number;
+  image: string;
+}
+export interface EvolutionResponse {
+  base_form: ItemEvolution;
+  first_evolution: ItemEvolution;
+  second_evolution: ItemEvolution;
+}
 
 class PokemonClient {
   getPaginationPokemon = async (
@@ -123,5 +136,73 @@ class PokemonClient {
 
     return await Promise.all(pokemons);
   };
+
+  getEvolution = async (id: number): Promise<EvolutionResponse> => {
+    const { data: pokemonSpecieData } = await api.get<PokemonSpecie>(
+      `/pokemon-species/${id}`
+    );
+
+    const pokemonIdInEvolutionChain = this.getPokemonIdByUrl(
+      pokemonSpecieData.evolution_chain.url
+    );
+
+    const { data: evolutionChain } = await api.get<EvolutionChain>(
+      `/evolution-chain/${pokemonIdInEvolutionChain}`
+    );
+
+    const evolutionFormatted = evolutionChain.chain.evolves_to.map(
+      (evolves) => {
+        const { name: baseFormName, url: baseFormUrl } =
+          evolutionChain.chain.species;
+
+        const base_form: ItemEvolution = {
+          name: capitalizeFirstLetter(baseFormName),
+          url: evolutionChain.chain.species.url,
+          image: this.getPokemonImageById(this.getPokemonIdByUrl(baseFormUrl))
+        };
+
+        let second_evolution: ItemEvolution;
+
+        if (evolves.evolves_to.length !== 0) {
+          evolves.evolves_to.map((secondEvolves) => {
+            const secondEvolutionPokemonId = this.getPokemonIdByUrl(
+              secondEvolves.species.url
+            );
+
+            second_evolution = {
+              name: capitalizeFirstLetter(secondEvolves.species.name),
+              url: secondEvolves.species.url,
+              min_level: secondEvolves.evolution_details[0].min_level,
+              image: this.getPokemonImageById(secondEvolutionPokemonId)
+            };
+
+            return second_evolution;
+          });
+        }
+
+        const firstEvolutionPokemonId = this.getPokemonIdByUrl(
+          evolves.species.url
+        );
+
+        const first_evolution: ItemEvolution = {
+          name: capitalizeFirstLetter(evolves.species.name),
+          url: evolves.species.url,
+          min_level: evolves.evolution_details[0].min_level,
+          image: this.getPokemonImageById(firstEvolutionPokemonId)
+        };
+
+        return {
+          base_form,
+          first_evolution,
+          second_evolution
+        } as EvolutionResponse;
+      }
+    );
+
+    return evolutionFormatted[0] as EvolutionResponse;
+  };
+  getPokemonIdByUrl = (url: string): string => url.split('/')[6];
+  getPokemonImageById = (id: string): string =>
+    `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`;
 }
 export { PokemonClient };

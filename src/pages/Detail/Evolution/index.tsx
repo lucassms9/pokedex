@@ -1,65 +1,58 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React from 'react';
+import Text from '../../../components/Text';
 
-import { Text } from 'react-native';
-// import Loading from '../../../../components/Loading';
-import api from '../../../services/api';
-import { EvolutionChain } from '../../../../types';
-// import { SlideProps } from "../tabs";
-
+import { ActivityIndicator } from 'react-native';
 import EvolutionSection from './EvolutionSection';
-import { Content } from './styles';
-
-const Evolution = ({ pokemon }) => {
-  const [evolutions, setEvolutions] = useState({} as EvolutionChain);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    async function loadPokemonEvolutions() {
-      const response = await api.get(`evolutions/${pokemon.id}`);
-
-      setEvolutions(response.data);
-      setLoading(false);
-    }
-
-    loadPokemonEvolutions();
-  }, [pokemon.id]);
-
-  const noResponseContent = useMemo(() => {
-    if (loading) {
-      return <Text>loading</Text>;
-    }
-
-    return <Text styles={{ color: 'gray' }}>No evolutions.</Text>;
-  }, [loading]);
+import { Content, Title } from './styles';
+import { PokemonEntity } from '../../../services/pokemons/types';
+import { useEvolution } from '../../../services/pokemons/useEvolution';
+import { POKEMON_TYPE_COLORS } from '../../../constants';
+interface Props {
+  pokemon: PokemonEntity;
+}
+const Evolution = ({ pokemon }: Props) => {
+  const { evolutions, isLoading } = useEvolution(pokemon.id);
 
   return (
     <>
-      <Text styles={{ fontWeight: 'bold' }}>Evolution Chain</Text>
-
-      {evolutions.first_evolution || evolutions.second_evolution ? (
-        <Content>
-          {evolutions.first_evolution && (
-            <EvolutionSection
-              firstImage={evolutions.base_form.image}
-              firstName={evolutions.base_form.name}
-              secondName={evolutions.first_evolution.name}
-              secondImage={evolutions.first_evolution.image}
-              minLevel={evolutions.first_evolution.min_level}
-            />
-          )}
-
-          {evolutions.second_evolution && (
-            <EvolutionSection
-              firstImage={evolutions.first_evolution.image}
-              firstName={evolutions.first_evolution.name}
-              secondName={evolutions.second_evolution.name}
-              secondImage={evolutions.second_evolution.image}
-              minLevel={evolutions.second_evolution.min_level}
-            />
-          )}
-        </Content>
+      <Title
+        bold
+        color={POKEMON_TYPE_COLORS[pokemon.types[0].type.name.toLowerCase()]}
+      >
+        Evolução
+      </Title>
+      {isLoading ? (
+        <ActivityIndicator />
       ) : (
-        <Content>{noResponseContent}</Content>
+        <>
+          {evolutions?.first_evolution || evolutions?.second_evolution ? (
+            <Content>
+              {evolutions.first_evolution && (
+                <EvolutionSection
+                  firstImage={evolutions.base_form.image}
+                  firstName={evolutions.base_form.name}
+                  secondName={evolutions.first_evolution.name}
+                  secondImage={evolutions.first_evolution.image}
+                  minLevel={evolutions.first_evolution.min_level}
+                />
+              )}
+
+              {evolutions?.second_evolution && (
+                <EvolutionSection
+                  firstImage={evolutions.first_evolution.image}
+                  firstName={evolutions.first_evolution.name}
+                  secondName={evolutions.second_evolution.name}
+                  secondImage={evolutions.second_evolution.image}
+                  minLevel={evolutions.second_evolution.min_level}
+                />
+              )}
+            </Content>
+          ) : (
+            <Content>
+              <Text color="grey">No evolutions</Text>;
+            </Content>
+          )}
+        </>
       )}
     </>
   );

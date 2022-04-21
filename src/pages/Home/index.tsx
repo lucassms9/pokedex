@@ -31,7 +31,6 @@ const Home = () => {
     hasNextPage
   } = usePaginationList();
 
-  console.log('pokemons', pokemons?.length);
   const skeletons = Array.from(Array(20));
 
   const renderItem = ({ item, index }) => {

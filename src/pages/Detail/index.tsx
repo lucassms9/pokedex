@@ -1,204 +1,138 @@
-import React, { useCallback, useRef, useMemo, useState } from "react";
-import { Animated, Dimensions, ScrollView } from "react-native";
-import {
-  SafeAreaView,
-  Text,
-  View,
-  Image,
-  TouchableOpacity,
-} from "react-native";
-import { Feather } from "@expo/vector-icons";
-import { Header } from "./styles";
-import { LinearGradient } from "expo-linear-gradient";
-
-import pokeballIcon from "../../../assets/pokeball-transparent.jpg";
-import { tabs, TAB_BUTTON_WIDTH } from "./tabs";
-
+import React, {
+  useCallback,
+  useRef,
+  useMemo,
+  useState,
+  useEffect
+} from 'react';
+import { Animated, Dimensions, ScrollView } from 'react-native';
+import { SafeAreaView, View, Image, TouchableOpacity } from 'react-native';
+import { Feather } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
+import Text from '../../components/Text';
+import pokeballIcon from '../../../assets/pokeball-transparent.jpg';
+import { tabs } from './tabs';
+import { useNavigation } from '@react-navigation/native';
 import {
   Container,
   Tabs,
   TabButton,
-  SelectedIndicator,
   SlideWrapper,
   ImageBall,
-} from "./styles";
+  ContentInfo,
+  ContentType,
+  Type,
+  SectionAbout
+} from './styles';
+import { lighten } from 'polished';
+import { Props } from './types';
+import { POKEMON_TYPE_COLORS } from '../../constants';
 
-const Detail = ({ navigation }) => {
+const Detail = ({ route }: Props) => {
+  const {
+    params: { pokemon }
+  } = route;
+
   const scrollViewRef = useRef<ScrollView>(null);
-  const [tabActive, setTabActive] = useState(0);
-  const { width } = Dimensions.get("window");
+  const navigation = useNavigation();
 
-  const translateX = useMemo(() => new Animated.Value(0), []);
+  const [tabActive, setTabActive] = useState(0);
+  const { width } = Dimensions.get('window');
+
+  const translateY = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(translateY, {
+          toValue: -30,
+          duration: 1000,
+          delay: 0,
+          useNativeDriver: false
+        }),
+        Animated.timing(translateY, {
+          toValue: 0,
+          duration: 1000,
+          useNativeDriver: false
+        })
+      ]),
+      {
+        iterations: 100
+      }
+    ).start();
+  }, []);
 
   const handleChangeSlide = useCallback((index: number) => {
     setTabActive(index);
-    console.log("index", index);
-    console.log("width * index", width * index);
+    console.log('index', index);
+    console.log('width * index', width * index);
     if (scrollViewRef.current) {
       scrollViewRef.current.scrollTo({
         x: width * index,
-        animated: true,
+        animated: true
       });
     }
   }, []);
 
-  // const containerStyle = {
-  //   transform: [
-  //     {
-  //       translateY: translateY.interpolate({
-  //         inputRange: [-POKEMON_SUMMARY_HEIGHT, 0],
-  //         outputRange: [0, -32],
-  //         extrapolate: 'clamp',
-  //       }),
-  //     },
-  //   ],
-
-  const pokemon = {
-    id: 1,
-    name: "Bulbasaur",
-    description:
-      "BULBASAUR can be seen napping in\nbright sunlight.\nThere is a seed on its back.\fBy soaking up the sun’s rays, the seed\ngrows progressively larger.",
-    image:
-      "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1.png",
-    genera: "Seed Pokémon",
-    pokedex_number: "001",
-    base_experience: 64,
-    types: [
-      {
-        name: "Grass",
-        url: "https://pokeapi.co/api/v2/type/12/",
-      },
-      {
-        name: "Poison",
-        url: "https://pokeapi.co/api/v2/type/4/",
-      },
-    ],
-    stats: [
-      {
-        base_stat: 45,
-        name: "HP",
-        url: "https://pokeapi.co/api/v2/stat/1/",
-      },
-      {
-        base_stat: 49,
-        name: "Attack",
-        url: "https://pokeapi.co/api/v2/stat/2/",
-      },
-      {
-        base_stat: 49,
-        name: "Defense",
-        url: "https://pokeapi.co/api/v2/stat/3/",
-      },
-      {
-        base_stat: 65,
-        name: "Sp. Atk",
-        url: "https://pokeapi.co/api/v2/stat/4/",
-      },
-      {
-        base_stat: 65,
-        name: "Sp. Def",
-        url: "https://pokeapi.co/api/v2/stat/5/",
-      },
-      {
-        base_stat: 45,
-        name: "Speed",
-        url: "https://pokeapi.co/api/v2/stat/6/",
-      },
-    ],
-    height: 7,
-    weight: 69,
-    abilites: [
-      {
-        name: "Overgrow",
-        url: "https://pokeapi.co/api/v2/ability/65/",
-      },
-      {
-        name: "Chlorophyll",
-        url: "https://pokeapi.co/api/v2/ability/34/",
-      },
-    ],
-    gender_rate: 1,
-    egg_groups: [
-      {
-        name: "Monster",
-        url: "https://pokeapi.co/api/v2/egg-group/1/",
-      },
-      {
-        name: "Plant",
-        url: "https://pokeapi.co/api/v2/egg-group/7/",
-      },
-    ],
-  };
-
-  const selectedIndicatorStyle = {
-    transform: [
-      {
-        translateX: translateX.interpolate({
-          inputRange: tabs.map((_, index) => width * index),
-          outputRange: tabs.map((_, index) => TAB_BUTTON_WIDTH * index),
-          extrapolate: "clamp",
-        }),
-      },
-    ],
-  };
-
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaView>
       <LinearGradient
-        start={{ x: 0.7, y: 0 }}
-        // end={{ x: 0, y: 1 }}
-        colors={["#6aa857", "#8bd674"]}
+        start={{ x: 0.8, y: 0.2 }}
+        colors={[
+          lighten(
+            0.2,
+            POKEMON_TYPE_COLORS[pokemon.types[0].type.name.toLowerCase()]
+          ),
+          POKEMON_TYPE_COLORS[pokemon.types[0].type.name.toLowerCase()]
+        ]}
         style={{ height: 300 }}
       >
-        <View style={{ marginHorizontal: 30, marginTop: 30 }}>
+        <SectionAbout>
           <TouchableOpacity onPress={() => navigation.goBack()}>
             <Feather name="arrow-left" size={24} color="white" />
           </TouchableOpacity>
 
           <View
             style={{
-              flexDirection: "row",
-              alignItems: "center",
+              flexDirection: 'row',
+              alignItems: 'center',
               marginTop: 20,
-              marginLeft: 20,
+              marginLeft: 20
             }}
           >
-            <Image
-              style={{ height: 120, width: 120 }}
+            <Animated.Image
+              style={{ height: 120, width: 120, top: translateY }}
               source={{
-                uri: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/14.png",
+                uri: pokemon.image
               }}
             />
 
-            <View style={{}}>
-              <Text style={{ fontSize: 12 }}>#014</Text>
-              <Text style={{ fontSize: 22, color: "#fff", fontWeight: "800" }}>
-                Kakuna
+            <ContentInfo>
+              <Text variant="caption"> #{pokemon.id}</Text>
+              <Text variant="body1" bold color="white">
+                {pokemon.name}
               </Text>
-              <View style={{ marginTop: 5 }}>
-                <View
-                  style={{
-                    backgroundColor: "#8cb331",
-                    width: 40,
-                    padding: 4,
-                    borderRadius: 4,
-                  }}
-                >
-                  <Text
-                    style={{ fontSize: 12, color: "#fff", textAlign: "center" }}
+              <ContentType horizontal>
+                {pokemon.types.map((type) => (
+                  <Type
+                    backgroundColor={
+                      POKEMON_TYPE_COLORS[type.type.name.toLowerCase()]
+                    }
                   >
-                    Bug
-                  </Text>
-                </View>
-              </View>
-            </View>
+                    <Text color="white" variant="caption">
+                      {type.type.name}
+                    </Text>
+                  </Type>
+                ))}
+              </ContentType>
+            </ContentInfo>
           </View>
-        </View>
+        </SectionAbout>
         <View
           style={{
             flex: 1,
-            justifyContent: "flex-end",
-            marginBottom: 20,
+            justifyContent: 'flex-end',
+            marginBottom: 20
           }}
         >
           <Tabs style={{}}>
@@ -206,7 +140,7 @@ const Detail = ({ navigation }) => {
               return (
                 <TabButton key={index} onPress={() => handleChangeSlide(index)}>
                   {tabActive === index && <ImageBall source={pokeballIcon} />}
-                  <Text style={{ color: "#fff", fontWeight: "700" }}>
+                  <Text style={{ color: '#fff', fontWeight: '700' }}>
                     {tab.name}
                   </Text>
                 </TabButton>

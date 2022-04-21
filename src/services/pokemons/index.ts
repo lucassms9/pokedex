@@ -1,9 +1,9 @@
-import { QueryFunction, useInfiniteQuery } from 'react-query';
+import { useInfiniteQuery } from 'react-query';
 
 import { createPaginationKey } from './keys';
 import { PokemonClient } from './client';
 import { PokemonEntity } from './types';
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 
 const usePaginationList = (offset = 0) => {
   const {
